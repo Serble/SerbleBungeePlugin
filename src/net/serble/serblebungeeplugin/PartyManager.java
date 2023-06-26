@@ -106,8 +106,9 @@ public class PartyManager implements Listener {
     }
 
     public void deleteParty(ProxiedPlayer leader) {
-        this.parties.removeIf(p -> p.getLeader() == leader.getUniqueId());
-        sendPartyDeleteToServer(getParty(leader), leader);
+        Party party = getParty(leader);
+        boolean didDelete = this.parties.removeIf(p -> p.getLeader() == leader.getUniqueId());
+        if (didDelete) sendPartyDeleteToServer(party, leader);
     }
 
     public Party getParty(ProxiedPlayer player) {

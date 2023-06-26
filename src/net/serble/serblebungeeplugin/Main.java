@@ -21,9 +21,13 @@ public class Main extends Plugin {
         plugin = this;
         partyManager = new PartyManager();
         partyWarpManager = new PartyWarpManager();
+
+        new ConfigUtil().createConfig();
+
         getProxy().registerChannel("serble:serble");
         getProxy().getPluginManager().registerListener(this, new GetConfig());
         getProxy().getPluginManager().registerListener(this, partyManager);
+        getProxy().getPluginManager().registerListener(this, new KickListener());
 
         getProxy().registerChannel("serble:party");
         getProxy().getPluginManager().registerListener(this, partyWarpManager);
@@ -44,9 +48,7 @@ public class Main extends Plugin {
         // server. Then send a message to each server to disconnect all players
         // on that server.
         for (String server : ProxyServer.getInstance().getServers().keySet()) {
-            ProxyServer.getInstance().getServerInfo(server).getPlayers().stream().findFirst().ifPresent(player -> {
-                partyManager.sendResetNotification(player);
-            });
+            ProxyServer.getInstance().getServerInfo(server).getPlayers().stream().findFirst().ifPresent(player -> partyManager.sendResetNotification(player));
         }
     }
 

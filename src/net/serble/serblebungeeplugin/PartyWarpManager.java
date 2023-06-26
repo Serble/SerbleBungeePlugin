@@ -11,11 +11,18 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.serble.serblebungeeplugin.Schemas.Party;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class PartyWarpManager implements Listener {
 
-    public void warp(Party party, boolean fullWarp) {
+    public void warp(Party party, boolean fullWarp, boolean delayed) {
+        if (delayed) {
+            // Delayed warp
+            ProxyServer.getInstance().getScheduler().schedule(Main.plugin, () -> warp(party, fullWarp, false), 1, java.util.concurrent.TimeUnit.SECONDS);
+            return;
+        }
+
         ServerInfo server = ProxyServer.getInstance().getPlayer(party.getLeader()).getServer().getInfo();
         for (UUID memberId : party.getMembers()) {
             ProxiedPlayer member = ProxyServer.getInstance().getPlayer(memberId);
@@ -24,7 +31,7 @@ public class PartyWarpManager implements Listener {
             }
 
             // Send player to same server as leader
-            member.connect(server);
+            if (!Objects.equals(member.getServer().getInfo().getName(), server.getName())) member.connect(server);
 
             final ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF(fullWarp ? "fullwarp" : "warp");  // It's a warp request
@@ -43,7 +50,8 @@ public class PartyWarpManager implements Listener {
 
         final ByteArrayDataInput in = ByteStreams.newDataInput(e.getData());
         final String subchannel = in.readUTF();
-        if (!subchannel.equals("warp")) return;  // This should never happen
+        if (!subchannel.equals("warp") && !subchannel.equals("delayedwarp")) return;  // This should never happen
+        boolean delayed = subchannel.equals("delayedwarp");
         final String player = in.readUTF();
 
         final ProxiedPlayer p = ProxyServer.getInstance().getPlayer(UUID.fromString(player));
@@ -52,7 +60,7 @@ public class PartyWarpManager implements Listener {
         Party party = Main.getPartyManager().getParty(p);
         if (party == null) return;  // They must have disbanded the party or maybe something broke, probably not important
 
-        warp(party, false);
+        warp(party, false, delayed);
     }
 
 }
