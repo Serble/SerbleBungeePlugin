@@ -8,13 +8,16 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 import net.serble.serblebungeeplugin.Main;
 import net.serble.serblebungeeplugin.Schemas.Party;
 import net.serble.serblebungeeplugin.Utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class PartyCommand extends Command {
+public class PartyCommand extends Command implements TabExecutor {
 
     public PartyCommand(String alias) {
         super(alias);
@@ -279,6 +282,52 @@ public class PartyCommand extends Command {
     private void sendJoinMessage(ProxiedPlayer newUser, Party target) {
         newUser.sendMessage(Utils.getMessage("&aYou have joined &b" + ProxyServer.getInstance().getPlayer(target.getLeader()).getName() + "'s &aparty!"));
         Main.getPartyManager().partyBroadcast(target, "&b" + newUser.getName() + " &ahas joined the party!", false, newUser);
+    }
+
+    @Override
+    public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
+        if (!(sender instanceof ProxiedPlayer)) return null;
+        ProxiedPlayer player = (ProxiedPlayer) sender;
+
+        List<String> results = new ArrayList<>();
+        if (args.length == 1) {
+            results.add("invite");
+            results.add("accept");
+            results.add("kick");
+            results.add("leave");
+            results.add("disband");
+            results.add("warp");
+            results.add("list");
+        } else if (args.length == 2) {
+            Party party = Main.getPartyManager().getPartyWhereUserIsMember(player);
+            boolean isLeader = party != null && party.getLeader() == player.getUniqueId();
+
+            switch (args[0]) {
+                case "kick":
+                    if (party == null || !isLeader) break;
+                    for (UUID playerId : party.getMembers()) {
+                        ProxiedPlayer member = ProxyServer.getInstance().getPlayer(playerId);
+                        if (member == null) continue;
+                        results.add(member.getName());
+                    }
+                    break;
+
+                case "invite":
+                    if (party != null && !isLeader) break;
+                    for (ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
+                        if (p == player) continue;
+                        results.add(p.getName());
+                    }
+                    break;
+
+                case "accept":
+                    for (Party partyIWasInvitedTo : Main.getPartyManager().getPartiesUserInInvitedTo(player)) {
+                        results.add(ProxyServer.getInstance().getPlayer(partyIWasInvitedTo.getLeader()).getName());
+                    }
+                    break;
+            }
+        }
+        return results;
     }
 
 }

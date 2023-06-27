@@ -9,6 +9,7 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
 import java.util.List;
+import java.util.Objects;
 
 public class KickListener implements Listener {
 
@@ -29,11 +30,32 @@ public class KickListener implements Listener {
             }
         }
 
-        String from = e.getKickedFrom().getName();
+        final String from = e.getKickedFrom().getName();
+
+        final boolean isLimbo = Objects.equals(from, fallback.getName());
+        if (Objects.equals(from, fallback.getName())) {
+            fallback = ProxyServer.getInstance().getServerInfo(ConfigUtil.configuration.getString("limbo-server"));
+        }
+
         e.setCancelServer(fallback);
         e.setCancelled(true);
         e.getPlayer().sendMessage(Utils.getMessage(reason));
         e.getPlayer().sendMessage(Utils.getMessage("&cYour connection to &7" + from + "&c was interrupted. You have been connected to: &7" + fallback.getName()));
+
+        final String fallbackName = fallback.getName();
+        fallback.ping((ping, error) -> {
+            if (error == null) {
+                return;
+            }
+
+            if (isLimbo) {
+                e.getPlayer().disconnect(Utils.getMessage("&cYour connection to &7" + from + "&c was interrupted and no other valid servers were found. You have been disconnected."));
+                return;
+            }
+            ServerInfo limbo = ProxyServer.getInstance().getServerInfo(ConfigUtil.configuration.getString("limbo-server"));
+            e.getPlayer().sendMessage(Utils.getMessage("&7" + fallbackName + "&c is currently offline. You have been connected to: &7" + limbo.getName()));
+            e.getPlayer().connect(limbo);
+        });
     }
 
 }

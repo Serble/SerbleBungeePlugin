@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class ConfigUtil {
-    static Configuration configuration;
+    public static Configuration configuration;
     private static final ConfigurationProvider provider = ConfigurationProvider.getProvider(YamlConfiguration.class);
 
     synchronized void createConfig() {
@@ -30,6 +30,12 @@ public class ConfigUtil {
 
             if (config.getString("fallback-server").isEmpty()) {
                 config.set("fallback-server", "main");
+            }
+            if (config.getString("limbo-server").isEmpty()) {
+                config.set("limbo-server", "limbo");
+            }
+            if (config.getString("hub-gamemode").isEmpty()) {
+                config.set("hub-gamemode", "main");
             }
             if (config.getStringList("ignore-fallback-keywords").isEmpty()) {
                 config.set("ignore-fallback-keywords", Collections.singletonList("banned"));

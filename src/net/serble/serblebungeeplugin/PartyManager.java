@@ -132,6 +132,16 @@ public class PartyManager implements Listener {
         return null;
     }
 
+    public List<Party> getPartiesUserInInvitedTo(ProxiedPlayer player) {
+        List<Party> parties = new ArrayList<>();
+        for (Party party : this.parties) {
+            if (party.getInvited().contains(player.getUniqueId())) {
+                parties.add(party);
+            }
+        }
+        return parties;
+    }
+
     public boolean ownsParty(ProxiedPlayer player) {
         return this.getParty(player) != null;
     }

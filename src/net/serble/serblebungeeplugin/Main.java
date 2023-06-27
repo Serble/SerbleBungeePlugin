@@ -1,9 +1,13 @@
 package net.serble.serblebungeeplugin;
 
+import com.google.gson.Gson;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.serble.serblebungeeplugin.Commands.HubCommand;
 import net.serble.serblebungeeplugin.Commands.PartyCommand;
+import net.serble.serblebungeeplugin.Commands.PlayCommand;
 import net.serble.serblebungeeplugin.Commands.SerbleReloadCommand;
+import net.serble.serblebungeeplugin.Schemas.Config.ConfigSave;
 
 import java.io.File;
 import java.util.Scanner;
@@ -13,14 +17,17 @@ public class Main extends Plugin {
     public static Main plugin;
     private static PartyManager partyManager;
     private static PartyWarpManager partyWarpManager;
+    private static GameModeWarpManager gameModeWarpManager;
     public static boolean enabled = false;
     public static String content;
+    public static ConfigSave jsonConfig;
 
     @Override
     public void onEnable() {
         plugin = this;
         partyManager = new PartyManager();
         partyWarpManager = new PartyWarpManager();
+        gameModeWarpManager = new GameModeWarpManager();
 
         new ConfigUtil().createConfig();
 
@@ -28,6 +35,13 @@ public class Main extends Plugin {
         getProxy().getPluginManager().registerListener(this, new GetConfig());
         getProxy().getPluginManager().registerListener(this, partyManager);
         getProxy().getPluginManager().registerListener(this, new KickListener());
+
+        getProxy().registerChannel("serble:proxyexecute");
+        getProxy().getPluginManager().registerListener(this, new ProxyExecuteListener());
+
+        getProxy().registerChannel("serble:play");
+        getProxy().registerChannel("calcilator:svtp");
+        getProxy().getPluginManager().registerListener(this, gameModeWarpManager);
 
         getProxy().registerChannel("serble:party");
         getProxy().getPluginManager().registerListener(this, partyWarpManager);
@@ -38,6 +52,10 @@ public class Main extends Plugin {
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new SerbleReloadCommand());
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new PartyCommand("party"));
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new PartyCommand("p"));
+        ProxyServer.getInstance().getPluginManager().registerCommand(this, new PlayCommand("play"));
+        ProxyServer.getInstance().getPluginManager().registerCommand(this, new HubCommand("hub"));
+        ProxyServer.getInstance().getPluginManager().registerCommand(this, new HubCommand("lobby"));
+        ProxyServer.getInstance().getPluginManager().registerCommand(this, new HubCommand("l"));
 
         GetConfig();
     }
@@ -70,6 +88,10 @@ public class Main extends Plugin {
         }
 
         content = contentB.toString();
+
+        Gson gson = new Gson();
+        jsonConfig = gson.fromJson(content, ConfigSave.class);
+
         enabled = true;
     }
 
@@ -79,5 +101,9 @@ public class Main extends Plugin {
 
     public static PartyWarpManager getPartyWarpManager() {
         return partyWarpManager;
+    }
+
+    public static GameModeWarpManager getGameModeWarpManager() {
+        return gameModeWarpManager;
     }
 }
