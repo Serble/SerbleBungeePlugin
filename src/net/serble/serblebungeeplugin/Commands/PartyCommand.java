@@ -122,6 +122,11 @@ public class PartyCommand extends Command implements TabExecutor {
                     return;
                 }
 
+                if (party.getLeader().equals(player.getUniqueId())) {
+                    player.sendMessage(Utils.getMessage("&cYou are the leader of this party! Do &7/p disband&c to disband the party!"));
+                    return;
+                }
+
                 Main.getPartyManager().removeMember(player, player);
                 player.sendMessage(Utils.getMessage("&aYou have left the party!"));
                 Main.getPartyManager().partyBroadcast(party, "&7" + player.getName() + " &ahas left the party.", false, player);
@@ -149,7 +154,6 @@ public class PartyCommand extends Command implements TabExecutor {
                 Main.getPartyManager().deleteParty(player);
                 Main.getPartyManager().partyBroadcast(party, "&cThe party has been disbanded.", true);
                 player.sendMessage(Utils.getMessage("&aYou have disbanded the party!"));
-                Main.getPartyManager().sendPartyInfoToAllMembersServer(party);
                 break;
             }
 

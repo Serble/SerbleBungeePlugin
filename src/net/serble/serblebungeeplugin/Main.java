@@ -3,10 +3,7 @@ package net.serble.serblebungeeplugin;
 import com.google.gson.Gson;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.serble.serblebungeeplugin.Commands.HubCommand;
-import net.serble.serblebungeeplugin.Commands.PartyCommand;
-import net.serble.serblebungeeplugin.Commands.PlayCommand;
-import net.serble.serblebungeeplugin.Commands.SerbleReloadCommand;
+import net.serble.serblebungeeplugin.Commands.*;
 import net.serble.serblebungeeplugin.Schemas.Config.ConfigSave;
 
 import java.io.File;
