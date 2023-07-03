@@ -59,9 +59,9 @@ public class GameModeWarpManager implements Listener {
 
                 sendPlayerChecksComplete(player, mode, true);
             });
+        } else {
+            sendPlayerChecksComplete(player, mode, false);
         }
-
-        sendPlayerChecksComplete(player, mode, false);
     }
 
     private void sendPlayerChecksComplete(ProxiedPlayer player, GameMode gameMode, boolean changeServer) {
