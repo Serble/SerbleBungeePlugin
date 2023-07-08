@@ -37,7 +37,7 @@ public class PartyWarpManager implements Listener {
             out.writeUTF(fullWarp ? "fullwarp" : "warp");  // It's a warp request
             out.writeUTF(party.getLeader().toString());  // Send leader UUID
             out.writeUTF(memberId.toString());
-            member.getServer().getInfo().sendData("serble:party", out.toByteArray());
+            server.sendData("serble:party", out.toByteArray());  // Send the warp to the leaders server, so they can await the warped player connecting
         }
     }
 
