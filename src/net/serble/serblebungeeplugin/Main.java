@@ -32,6 +32,7 @@ public class Main extends Plugin {
         getProxy().getPluginManager().registerListener(this, new GetConfig());
         getProxy().getPluginManager().registerListener(this, partyManager);
         getProxy().getPluginManager().registerListener(this, new KickListener());
+        getProxy().getPluginManager().registerListener(this, new GameModeResumeHandler());
 
         getProxy().registerChannel("serble:proxyexecute");
         getProxy().getPluginManager().registerListener(this, new ProxyExecuteListener());

@@ -11,9 +11,11 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.serble.serblebungeeplugin.Schemas.Config.GameMode;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 public class GameModeWarpManager implements Listener {
+    private final HashMap<UUID, String> playerCurrentGameMode = new HashMap<>();
 
     @EventHandler
     public void onMessage(final PluginMessageEvent e) {
@@ -36,15 +38,17 @@ public class GameModeWarpManager implements Listener {
 
     public void sendPlayer(ProxiedPlayer player, String gameMode) {
         // Get the gamemode with that name
-        GameMode mode = Main.jsonConfig.GameModes.stream().filter(gm -> gm.Name.equals(gameMode)).findFirst().orElse(null);
+        GameMode mode = Main.jsonConfig.GameModes.stream().filter(gm -> gm.Name.equalsIgnoreCase(gameMode)).findFirst().orElse(null);
 
         if (mode == null) {
             throw new IllegalArgumentException("Game mode '" + gameMode + "' does not exist");
         }
 
+        playerCurrentGameMode.put(player.getUniqueId(), gameMode);
+
         ServerInfo server = ProxyServer.getInstance().getServerInfo(mode.Server);
 
-        if (!server.getName().equalsIgnoreCase(player.getServer().getInfo().getName())) {
+        if (player.getServer() == null || !server.getName().equalsIgnoreCase(player.getServer().getInfo().getName())) {
             // Change server
             server.ping((result, error) -> {
                 if (error != null) {
@@ -70,7 +74,10 @@ public class GameModeWarpManager implements Listener {
         // Send the player to the server and then delay the world teleport
         if (changeServer) {
             player.connect(server);
-            ProxyServer.getInstance().getScheduler().schedule(Main.plugin, () -> sendPlayerChecksComplete(player, gameMode, false), 1, java.util.concurrent.TimeUnit.SECONDS);
+            ProxyServer.getInstance().getScheduler().schedule(Main.plugin, () -> {
+                boolean isOnTargetServer = player.getServer() != null && player.getServer().getInfo().getName().equalsIgnoreCase(server.getName());
+                sendPlayerChecksComplete(player, gameMode, !isOnTargetServer);
+            }, 1, java.util.concurrent.TimeUnit.SECONDS);
             return;
         }
 
@@ -80,6 +87,10 @@ public class GameModeWarpManager implements Listener {
         out.writeUTF(player.getName());
         out.writeUTF(gameMode.World);
         player.getServer().getInfo().sendData("calcilator:svtp", out.toByteArray());
+    }
+
+    public String getPlayerCurrentGameMode(UUID player) {
+        return playerCurrentGameMode.get(player);
     }
 
 }
