@@ -15,6 +15,7 @@ public class Main extends Plugin {
     private static PartyManager partyManager;
     private static PartyWarpManager partyWarpManager;
     private static GameModeWarpManager gameModeWarpManager;
+    private static ChatManager chatManager;
     public static boolean enabled = false;
     public static String content;
     public static ConfigSave jsonConfig;
@@ -25,6 +26,7 @@ public class Main extends Plugin {
         partyManager = new PartyManager();
         partyWarpManager = new PartyWarpManager();
         gameModeWarpManager = new GameModeWarpManager();
+        chatManager = new ChatManager();
 
         new ConfigUtil().createConfig();
 
@@ -33,6 +35,7 @@ public class Main extends Plugin {
         getProxy().getPluginManager().registerListener(this, partyManager);
         getProxy().getPluginManager().registerListener(this, new KickListener());
         getProxy().getPluginManager().registerListener(this, new GameModeResumeHandler());
+        getProxy().getPluginManager().registerListener(this, new ChatManager());
 
         getProxy().registerChannel("serble:proxyexecute");
         getProxy().getPluginManager().registerListener(this, new ProxyExecuteListener());
@@ -103,5 +106,9 @@ public class Main extends Plugin {
 
     public static GameModeWarpManager getGameModeWarpManager() {
         return gameModeWarpManager;
+    }
+
+    public static ChatManager getChatManager() {
+        return chatManager;
     }
 }
