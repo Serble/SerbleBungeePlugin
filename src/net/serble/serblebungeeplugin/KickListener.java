@@ -15,6 +15,15 @@ public class KickListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onServerKickEvent(ServerKickEvent e) {
+        if (!ConfigUtil.configuration.getBoolean("kick-listener")) {
+            return;
+        }
+
+        if (e.getPlayer() == null || !e.getPlayer().isConnected()) {
+            ProxyServer.getInstance().getLogger().info("Player disconnected");
+            return;
+        }
+
         ServerInfo fallback = ProxyServer.getInstance().getServerInfo(ConfigUtil.configuration.getString("fallback-server"));
         if (fallback == null) {
             Main.plugin.getLogger().severe("Unable to find the specified fallback server!!");

@@ -40,6 +40,9 @@ public class ConfigUtil {
             if (config.getStringList("ignore-fallback-keywords").isEmpty()) {
                 config.set("ignore-fallback-keywords", Collections.singletonList("banned"));
             }
+            if (!config.contains("kick-listener")) {
+                config.set("kick-listener", true);
+            }
             provider.save(config, conf);
         } catch (IOException e) {
             e.printStackTrace();
