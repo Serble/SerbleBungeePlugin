@@ -64,10 +64,14 @@ public class PartyManager implements Listener {
         player.getServer().getInfo().sendData("serble:party", out.toByteArray());
     }
 
-    public void sendPartyInfoToAllMembersServer(Party party) {
+    public void sendPartyInfoToAllMembersServer(Party party, ProxiedPlayer... extraPlayers) {
         // Go through each member and send info to server, only send the info to each server once
         List<String> sentTo = new ArrayList<>();
-        for (UUID memberId : party.getMembers()) {
+        UUID[] allMembers = Arrays.copyOf(party.getMembers().toArray(), party.getMembers().size() + extraPlayers.length, UUID[].class);
+        for (int i = 0; i < extraPlayers.length; i++) {
+            allMembers[party.getMembers().size() + i] = extraPlayers[i].getUniqueId();
+        }
+        for (UUID memberId : allMembers) {
             ProxiedPlayer member = ProxyServer.getInstance().getPlayer(memberId);
             if (member == null) continue;
             if (sentTo.contains(member.getServer().getInfo().getName())) continue;

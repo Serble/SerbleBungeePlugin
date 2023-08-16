@@ -106,7 +106,7 @@ public class PartyCommand extends Command implements TabExecutor {
                 player.sendMessage(Utils.getMessage("&aYou have kicked " + member.getName() + " from the party!"));
                 member.sendMessage(Utils.getMessage("&cYou have been kicked from the party!"));
                 Main.getPartyManager().partyBroadcast(party, "&7" + player.getName() + " &ahas been kicked from the party.", true, member);
-                Main.getPartyManager().sendPartyInfoToAllMembersServer(party);
+                Main.getPartyManager().sendPartyInfoToAllMembersServer(party, member);
                 break;
             }
 
@@ -127,10 +127,10 @@ public class PartyCommand extends Command implements TabExecutor {
                     return;
                 }
 
-                Main.getPartyManager().removeMember(player, player);
+                Main.getPartyManager().removeMember(ProxyServer.getInstance().getPlayer(party.getLeader()), player);
                 player.sendMessage(Utils.getMessage("&aYou have left the party!"));
                 Main.getPartyManager().partyBroadcast(party, "&7" + player.getName() + " &ahas left the party.", false, player);
-                Main.getPartyManager().sendPartyInfoToAllMembersServer(party);
+                Main.getPartyManager().sendPartyInfoToAllMembersServer(party, player);
                 break;
             }
 
