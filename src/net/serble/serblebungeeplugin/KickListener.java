@@ -34,7 +34,7 @@ public class KickListener implements Listener {
 
         List<String> reasonList = ConfigUtil.configuration.getStringList("ignore-fallback-keywords");
         for (String s : reasonList) {
-            if (reason.toLowerCase().contains(s.toLowerCase())) {
+            if (reason.toLowerCase().contains(s.toLowerCase()) || reason.contains("FORCE_DC")) {
                 return;  // Don't do anything if the reason contains a keyword
             }
         }
@@ -58,7 +58,7 @@ public class KickListener implements Listener {
             }
 
             if (isLimbo) {
-                e.getPlayer().disconnect(Utils.getMessage("&cYour connection to &7" + from + "&c was interrupted and no other valid servers were found. You have been disconnected."));
+                e.getPlayer().disconnect(Utils.getMessage("&cYour connection to &7" + from + "&c was interrupted and no other valid servers were found. You have been disconnected. &7ERROR: LIMBO_ERROR, FORCE_DC"));
                 return;
             }
             ServerInfo limbo = ProxyServer.getInstance().getServerInfo(ConfigUtil.configuration.getString("limbo-server"));
